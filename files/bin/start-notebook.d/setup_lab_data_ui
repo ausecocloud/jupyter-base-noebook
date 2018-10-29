@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [ -z "${DROPBOX_APPKEY}" ] ; then
+    # no client_id configured
+    exit 0
+fi
+
+# we have a client id, configure it for jupyterlab
+SETTINGS_DIR="/home/${NB_USER}/.jupyter/lab/user-settings/lab_data_ui"
+SETTINGS_FILE="${SETTINGS_DIR}/plugin.jupyterlab-settings"
+mkdir -p "${SETTINGS_DIR}"
+cat > "${SETTINGS_FILE}" <<EOF
+{
+    "appkey": "${DROPBOX_APPKEY}"
+}
+EOF
+
+# also configure it for classic notebook
+# cloud also use jupyter --config-dir ?
+SETTINGS_DIR="/home/${NB_USER}/.jupyter/nbconfig"
+SETTINGS_FILE="${SETTINGS_DIR}/fetch.json"
+mkdir -p "${SETTINGS_DIR}"
+cat > "${SETTINGS_FILE}" << EOF
+{
+    "dropbox": {
+        "appkey": "${DROPBOX_APPKEY}"
+    }
+}
+EOF

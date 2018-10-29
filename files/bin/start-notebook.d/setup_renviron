@@ -1,0 +1,14 @@
+#!/bin/bash
+
+SETTINGS_DIR="/home/${NB_USER}/"
+SETTINGS_FILE="${SETTINGS_DIR}/.Renviron"
+
+mkdir -p "${SETTINGS_DIR}"
+
+cat > "${SETTINGS_FILE}" <<EOF
+# This file is needed for RStudio. There is no other way to customise environment variables
+# ensure Java works headless
+DISPLAY=''
+# customise default for conda R
+TAR='/bin/tar'
+EOF

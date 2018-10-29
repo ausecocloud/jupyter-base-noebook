@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ -z "${GITHUB_DEFAULT_REPO}" ] ; then
+    # no default repo requested
+    exit 0
+fi
+
+SETTINGS_DIR="/home/${NB_USER}/.jupyter/lab/user-settings/@jupyterlab/github"
+SETTINGS_FILE="${SETTINGS_DIR}/drive.jupyterlab-settings"
+
+mkdir -p "${SETTINGS_DIR}"
+
+cat > "${SETTINGS_FILE}" <<EOF
+{
+    "defaultRepo": "${GITHUB_DEFAULT_REPO}"
+}
+EOF
