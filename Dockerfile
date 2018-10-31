@@ -111,7 +111,7 @@ RUN pip3 install --no-cache-dir \
 
 # install lab_data_ui
 RUN cd /tmp \
-  && REV=332fd702df83be387e32470f4c765a39e56ea098 \
+  && REV=a06d276e353d09f281c1fc603d9318f6a8ef5dc4 \
   && curl -LO https://github.com/ausecocloud/lab_data_Ui/archive/${REV}.zip \
   && unzip ${REV}.zip \
   && cd lab_data_ui-${REV} \
