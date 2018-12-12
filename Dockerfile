@@ -20,6 +20,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
  && apt-get -y upgrade \
  && apt-get install -yq --no-install-recommends \
+    build-essential \
     curl \
     bzip2 \
     git \
