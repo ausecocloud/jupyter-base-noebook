@@ -51,7 +51,6 @@ RUN curl -LO https://github.com/krallin/tini/releases/download/v0.18.0/tini \
 # - add some base extensions
 # - remove default python kernel from this python environment.
 #   we don't want users to run the python kernel for jupyter itself.
-# nbserverproxy==0.8.5
 RUN pip3 install --no-cache-dir \
       notebook==5.7.0 \
       ipywidgets==7.4.2 \
@@ -60,7 +59,7 @@ RUN pip3 install --no-cache-dir \
       jupyterlab==0.34.12 \
       jupyter_nbextensions_configurator==0.4.0 \
       jupyter_contrib_nbextensions==0.5.0 \
-      https://github.com/jupyterhub/nbserverproxy/archive/41d0fae920867d823b958d1c0494f59a850144fc.zip \
+      nbserverproxy==0.8.6 \
       https://github.com/ausecocloud/jupyter_environment_kernels/archive/13eea335f5945270cdce3cd561a58bc1b4ae0b06.zip \
       https://github.com/ausecocloud/nb_data_ui/archive/ed1c83427faf52cc2c06dbc97897576bbded86a5.zip \
  && jupyter nbextension enable --py --sys-prefix widgetsnbextension \

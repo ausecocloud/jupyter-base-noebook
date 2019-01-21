@@ -1,17 +1,23 @@
 #!/bin/bash
 
-if [ -z "${GOOGLE_DRIVE_CLIENT_ID}" ] ; then
-    # no client_id configured
-    exit 0
-fi
+# is client_id configured ?
+if [ -n "${GOOGLE_DRIVE_CLIENT_ID}" ] ; then
 
-# we have a client id, configure it
-SETTINGS_DIR="/home/${NB_USER}/.jupyter/lab/user-settings/@jupyterlab/google-drive"
-SETTINGS_FILE="${SETTINGS_DIR}/drive.jupyterlab-settings"
-mkdir -p "${SETTINGS_DIR}"
-cat > "${SETTINGS_FILE}" <<EOF
+    # we have a client id, configure it
+    SETTINGS_DIR="/home/${NB_USER}/.jupyter/lab/user-settings/@jupyterlab/google-drive"
+    SETTINGS_FILE="${SETTINGS_DIR}/drive.jupyterlab-settings"
+    mkdir -p "${SETTINGS_DIR}"
+    cat > "${SETTINGS_FILE}" <<EOF
 {
-    "clientId": "${GOOGLE_DRIVE_CLIENT_ID}",
-    "realtime": false
+  "clientId": "${GOOGLE_DRIVE_CLIENT_ID}",
+  "realtime": false
 }
 EOF
+
+else
+
+    echo "Google Drive client id no configured."
+
+fi
+
+
