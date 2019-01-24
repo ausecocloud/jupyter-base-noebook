@@ -54,18 +54,18 @@ RUN curl -LO https://github.com/krallin/tini/releases/download/v0.18.0/tini \
 RUN pip3 install --no-cache-dir \
       notebook==5.7.0 \
       ipywidgets==7.4.2 \
-      ipyleaflet==0.9.0 \
+      ipyleaflet==0.9.2 \
       jupyterhub==0.9.4 \
-      jupyterlab==0.34.12 \
-      jupyter_nbextensions_configurator==0.4.0 \
-      jupyter_contrib_nbextensions==0.5.0 \
-      nbserverproxy==0.8.6 \
+      jupyterlab==0.35.4 \
+      jupyter_nbextensions_configurator==0.4.1 \
+      jupyter_contrib_nbextensions==0.5.1 \
+      https://github.com/ausecocloud/jupyter-server-proxy/archive/894fba3432dca85c987690c4034e6f18a829e8bc.zip \
       https://github.com/ausecocloud/jupyter_environment_kernels/archive/13eea335f5945270cdce3cd561a58bc1b4ae0b06.zip \
       https://github.com/ausecocloud/nb_data_ui/archive/ed1c83427faf52cc2c06dbc97897576bbded86a5.zip \
  && jupyter nbextension enable --py --sys-prefix widgetsnbextension \
  && jupyter nbextensions_configurator enable --sys-prefix \
  && jupyter contrib nbextension install --sys-prefix \
- && jupyter serverextension enable --sys-prefix nbserverproxy \
+ && jupyter serverextension enable --sys-prefix jupyter_server_proxy \
  && jupyter nbextension install --py --sys-prefix nb_data_ui \
  && jupyter nbextension enable --py --sys-prefix nb_data_ui \
  && jupyter serverextension enable --sys-prefix nb_data_ui \
@@ -90,19 +90,21 @@ RUN pip3 install --no-cache-dir \
 
 # install jupyterlab extensions
 RUN pip3 install --no-cache-dir \
-      jupyterlab-latex==0.4.1 \
+      https://github.com/jupyterlab/jupyterlab-latex/archive/0.6.1.tar.gz \
       jupyterlab_github==0.7.0 \
  && jupyter serverextension enable --sys-prefix jupyterlab_latex \
+ && jupyter serverextension enable --sys-prefix jupyterlab_github \
  && NODE_OPTIONS=--max-old-space-size=4096 jupyter labextension install --no-build \
-      @jupyterlab/hub-extension@^0.11.0 \
-      @jupyterlab/latex@^0.5.0 \
-      @jupyterlab/google-drive@^0.14.0 \
-      jupyterlab_bokeh@=0.6.2 \
-      @jupyterlab/geojson-extension@^0.17.1 \
-      @jupyterlab/plotly-extension@^0.17.2 \
-      @jupyterlab/github@^0.9.0 \
-      jupyter-leaflet@^0.9.0 \
-      @jupyter-widgets/jupyterlab-manager@^0.37.4 \
+      jupyterlab-server-proxy@^0.1.0-beta2 \
+      @jupyterlab/hub-extension@^0.12.0 \
+      @jupyterlab/latex@^0.6.1 \
+      @jupyterlab/google-drive@^0.16.0 \
+      jupyterlab_bokeh@=0.6.3 \
+      @jupyterlab/geojson-extension@^0.18.1 \
+      @jupyterlab/plotly-extension@^0.18.1 \
+      @jupyterlab/github@^0.10.0 \
+      jupyter-leaflet@^0.9.2 \
+      @jupyter-widgets/jupyterlab-manager@^0.38.1 \
  && echo '{ "hub_prefix": "/hub" }' > /usr/local/share/jupyter/lab/settings/page_config.json \
  && rm -fr /usr/local/share/jupyter/lab/staging \
  && rm -fr /usr/local/share/.cache \
@@ -110,7 +112,7 @@ RUN pip3 install --no-cache-dir \
 
 # install lab_data_ui
 RUN cd /tmp \
-  && REV=a06d276e353d09f281c1fc603d9318f6a8ef5dc4 \
+  && REV=bc705587cf98f9bdbd8bc0c74f4d989c93f6e294 \
   && curl -LO https://github.com/ausecocloud/lab_data_Ui/archive/${REV}.zip \
   && unzip ${REV}.zip \
   && cd lab_data_ui-${REV} \
@@ -151,10 +153,10 @@ USER $NB_USER
 
 # Install conda as jovyan and check the md5 sum provided on the download site
 # downgrade default python env to 3.5
-ENV MINICONDA_VERSION 4.5.4
+ENV MINICONDA_VERSION 4.5.12
 RUN cd /tmp \
  && curl -LO https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
- && echo "a946ea1d0c4a642ddf0c3a26a18bb16d *Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh" | md5sum -c - \
+ && echo "866ae9dff53ad0874e1d1a60b1ad1ef8 *Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh" | md5sum -c - \
  && /bin/bash Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p ${CONDA_DIR} \
  && rm Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
  && conda config --system --set auto_update_conda false \
