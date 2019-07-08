@@ -28,6 +28,9 @@ RUN apt-get update \
     make \
     procps \
     texlive-xetex \
+    texlive-fonts-recommended \
+    texlive-generic-recommended \
+    pandoc \
     unzip \
     vim-tiny \
     wget \
