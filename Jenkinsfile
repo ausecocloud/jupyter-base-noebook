@@ -23,7 +23,7 @@ node ('docker') {
             }
             // get version:
             img.inside() {
-                version = sh(script: '/usr/local/bin/python -c  \'import pkg_resources; print(pkg_resources.get_distribution("jupyterhub").version)\'',
+                version = sh(script: '/usr/bin/python3 -c  \'import pkg_resources; print(pkg_resources.get_distribution("jupyterhub").version)\'',
                              returnStdout: true).trim()
             }
             // re-tag image
