@@ -1,4 +1,4 @@
-FROM python:3.6-slim-stretch
+FROM debian:10-slim
 
 # use AU mirror
 #RUN sed -i'' -e 's/archive.ubuntu.com/au.archive.ubuntu.com/' /etc/apt/sources.list
@@ -20,6 +20,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
  && apt-get -y upgrade \
  && apt-get install -yq --no-install-recommends \
+    ca-certificates \
     curl \
     bzip2 \
     git \
@@ -31,11 +32,13 @@ RUN apt-get update \
     texlive-fonts-recommended \
     texlive-generic-recommended \
     pandoc \
+    python3 \
+    python3-distutils \
     unzip \
     vim-tiny \
     wget \
     zip \
- && curl -sL https://deb.nodesource.com/setup_8.x | bash - \
+ && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
  && apt-get install -y nodejs \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
@@ -49,6 +52,13 @@ RUN curl -LO https://github.com/krallin/tini/releases/download/v0.18.0/tini \
  && echo "12d20136605531b09a2c2dac02ccee85e1b874eb322ef6baf7561cd93f93c855 *tini" | sha256sum -c - \
  && mv tini /usr/local/bin/tini \
  && chmod +x /usr/local/bin/tini
+
+# install pip
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
+ && python3 get-pip.py \
+ && rm get-pip.py \
+ && rm -fr ~/.cache/pip 
+
 
 # install jupyter notebook
 # - add some base extensions
@@ -113,7 +123,10 @@ RUN pip3 install --no-cache-dir \
  && echo '{ "hub_prefix": "/hub" }' > /usr/local/share/jupyter/lab/settings/page_config.json \
  && rm -fr /usr/local/share/jupyter/lab/staging \
  && rm -fr /usr/local/share/.cache \
- && rm -fr /root/{.cache,.npm}
+ && rm -fr /root/{.cache,.npm} \
+ && rm -fr /tmp/*
+
+
 
 # install lab_data_ui
 RUN cd /tmp \
@@ -131,8 +144,8 @@ RUN cd /tmp \
   && cd \
   && rm -fr /usr/local/share/jupyter/lab/staging \
   && rm -fr /usr/local/share/.cache \
-  && rm -fr /root/{.cache,.npm} \
-  && chown -R $NB_USER:$NB_GID $HOME
+  && rm -fr /root/{.config,.cache,.npm} \
+  && rm -fr /tmp/*
 
 
 # Configure environment
@@ -145,14 +158,14 @@ ENV CONDA_DIR=/opt/conda \
 # NOTE: these may be overrideable when starting the notebook... no guarantee though
 ENV NB_USER=jovyan \
     NB_UID=1000 \
-    NB_GID=100 \
-    PATH=${CONDA_DIR}/bin:$PATH
+    NB_GID=100
 
 # Create jovyan user with UID=1000 and in the 'users' group
 # and make sure these dirs are writable by the `users` group.
 RUN useradd -m -s /bin/bash -N -u $NB_UID $NB_USER \
  && mkdir -p ${CONDA_DIR} \
  && chown -R $NB_USER:$NB_GID ${CONDA_DIR}
+
 
 USER $NB_USER
 
@@ -164,11 +177,13 @@ RUN cd /tmp \
  && echo "866ae9dff53ad0874e1d1a60b1ad1ef8 *Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh" | md5sum -c - \
  && /bin/bash Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p ${CONDA_DIR} \
  && rm Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
- && conda config --system --set auto_update_conda false \
- && conda config --system --set show_channel_urls true \
- && conda update --yes conda \
- && conda update --all --yes \
- && conda clean -tipsy \
+ && ${CONDA_DIR}/bin/conda config --system --set auto_update_conda false \
+ && ${CONDA_DIR}/bin/conda config --system --set show_channel_urls true \
+ && ${CONDA_DIR}/bin/conda update --yes conda \
+ && ${CONDA_DIR}/bin/conda update --all --yes \
+ && ${CONDA_DIR}/bin/conda clean -tipsy \
+ && ${CONDA_DIR}/bin/conda config --set auto_activate_base false \
+ && ${CONDA_DIR}/bin/conda init \
  && rm -fr /home/$NB_USER/{.cache,.conda,.npm}
 
 
@@ -183,11 +198,8 @@ COPY files/jupyter_notebook_config.py /etc/jupyter/
 
 EXPOSE 8888
 
-ENV HOME=/home/${NB_USER}
-
-# Setup conda environment
-RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> $HOME/.bashrc \
- && echo "conda activate" >> $HOME/.bashrc
+ENV HOME=/home/${NB_USER} \
+    PATH=${CONDA_DIR}/bin:$PATH
 
 WORKDIR $HOME
 
