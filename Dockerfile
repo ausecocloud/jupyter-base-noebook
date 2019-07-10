@@ -60,7 +60,7 @@ RUN pip3 install --no-cache-dir \
       ipywidgets==7.4.2 \
       ipyleaflet==0.9.2 \
       jupyterhub==0.9.4 \
-      tornado<6 \
+      'tornado<6' \
       jupyterlab==0.35.4 \
       jupyter_nbextensions_configurator==0.4.1 \
       jupyter_contrib_nbextensions==0.5.1 \
