@@ -54,11 +54,13 @@ RUN curl -LO https://github.com/krallin/tini/releases/download/v0.18.0/tini \
 # - add some base extensions
 # - remove default python kernel from this python environment.
 #   we don't want users to run the python kernel for jupyter itself.
+# TODO: need tornado < 6 for notebook < 5.7.5
 RUN pip3 install --no-cache-dir \
       notebook==5.7.0 \
       ipywidgets==7.4.2 \
       ipyleaflet==0.9.2 \
       jupyterhub==0.9.4 \
+      tornado<6 \
       jupyterlab==0.35.4 \
       jupyter_nbextensions_configurator==0.4.1 \
       jupyter_contrib_nbextensions==0.5.1 \
