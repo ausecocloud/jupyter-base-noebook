@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# set up home directory with system defaults
+find /etc/skel -type f -execdir cp -v "{}" "${HOME}" ";"
+${CONDA_DIR}/bin/conda config --set auto_activate_base false
+${CONDA_DIR}/bin/conda init
+
