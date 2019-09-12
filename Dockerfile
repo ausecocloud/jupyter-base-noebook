@@ -65,17 +65,20 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
 # - remove default python kernel from this python environment.
 #   we don't want users to run the python kernel for jupyter itself.
 # TODO: need tornado < 6 for notebook < 5.7.5
+# TODO: jupyterhub upgrade?????
+# https://github.com/ausecocloud/jupyter_environment_kernels/archive/13eea335f5945270cdce3cd561a58bc1b4ae0b06.zip \
 RUN pip3 install --no-cache-dir \
-      notebook==5.7.0 \
-      ipywidgets==7.4.2 \
-      ipyleaflet==0.9.2 \
+      notebook==6.0.1 \
+      ipywidgets==7.5.1 \
+      ipyleaflet==0.11.1 \
       jupyterhub==0.9.4 \
-      'tornado<6' \
-      jupyterlab==0.35.4 \
+      tornado \
+      jupyterlab==1.1.2 \
       jupyter_nbextensions_configurator==0.4.1 \
       jupyter_contrib_nbextensions==0.5.1 \
-      https://github.com/ausecocloud/jupyter-server-proxy/archive/894fba3432dca85c987690c4034e6f18a829e8bc.zip \
-      https://github.com/ausecocloud/jupyter_environment_kernels/archive/13eea335f5945270cdce3cd561a58bc1b4ae0b06.zip \
+      https://github.com/ausecocloud/jupyter-server-proxy/archive/145804e0e0d7599c2322599834851483d99d195e.zip \
+      https://github.com/Anaconda-Platform/nb_conda_kernels/archive/2.2.2.zip \
+      jupyter_conda==3.1.0 \
       https://github.com/ausecocloud/nb_data_ui/archive/ed1c83427faf52cc2c06dbc97897576bbded86a5.zip \
  && jupyter nbextension enable --py --sys-prefix widgetsnbextension \
  && jupyter nbextensions_configurator enable --sys-prefix \
@@ -84,53 +87,56 @@ RUN pip3 install --no-cache-dir \
  && jupyter nbextension install --py --sys-prefix nb_data_ui \
  && jupyter nbextension enable --py --sys-prefix nb_data_ui \
  && jupyter serverextension enable --sys-prefix nb_data_ui \
+ && jupyter nbextension install --py --sys-prefix jupyter_conda \
+ && jupyter nbextension enable --py --sys-prefix jupyter_conda \
+ && jupyter serverextension enable --py --sys-prefix jupyter_conda \
  && jupyter kernelspec uninstall -f python3 \
  && rm -fr /root/.cache
 
-# TODO:
-# - github extension may need server ext? https://github.com/jupyterlab/jupyterlab-github
-# - github extension: we should somehow store the user config? (or maybe not, ... strogin the user token may be a problem)
-#                     can we get it in via keycloak?
-# - general store / restore user settings for jupyter (and addons)
-#   add ons with custom config:
-#     - github
-#     - google-drive
-# - google drive: https://github.com/jupyterlab/jupyterlab-google-drive/blob/master/docs/advanced.md
-# - jupyterlab_discovery ... needs patching, as it fails with npm packages that
-#     are not publish on npm.org (e.g. rstudio extension)
-# - other interesting addons
-#     - https://github.com/Microsoft/monaco-editor/
-#     - https://github.com/jupyterlab/jupyterlab-git
-
-
 # install jupyterlab extensions
+# TODO:  jupyterlab-server-proxy@^1.0.0 \  # ... the version we need is not released yet
+# TODO: nice to have?  jupyterlab-chart-editor@1.2 \
 RUN pip3 install --no-cache-dir \
-      https://github.com/jupyterlab/jupyterlab-latex/archive/0.6.1.tar.gz \
+      jupyterlab-latex==1.0.0 \
       jupyterlab_github==0.7.0 \
  && jupyter serverextension enable --sys-prefix jupyterlab_latex \
  && jupyter serverextension enable --sys-prefix jupyterlab_github \
  && NODE_OPTIONS=--max-old-space-size=4096 jupyter labextension install --no-build \
-      jupyterlab-server-proxy@^0.1.0-beta2 \
-      @jupyterlab/hub-extension@^0.12.0 \
-      @jupyterlab/latex@^0.6.1 \
-      @jupyterlab/google-drive@^0.16.0 \
-      jupyterlab_bokeh@=0.6.3 \
-      @jupyterlab/geojson-extension@^0.18.1 \
-      @jupyterlab/plotly-extension@^0.18.1 \
-      @jupyterlab/github@^0.10.0 \
-      jupyter-leaflet@^0.9.2 \
-      @jupyter-widgets/jupyterlab-manager@^0.38.1 \
+      @jupyterlab/hub-extension@^1.1.0 \
+      @jupyterlab/latex@^1.0.0 \
+      @jupyterlab/google-drive@^1.0.0 \
+      jupyterlab_bokeh@=1.0.0 \
+      @jupyterlab/geojson-extension@^1.0.0 \
+      @jupyter-widgets/jupyterlab-manager@1.0 \
+      plotlywidget@1.1.1 \
+      jupyterlab-plotly@^1.1.2 \
+      @jupyterlab/github@^1.0.1 \
+      jupyter-leaflet@^0.11.1 \
+      jupyterlab_toastify@^2.3.2 \
+      jupyterlab_conda@^1.1.0 \
  && echo '{ "hub_prefix": "/hub" }' > /usr/local/share/jupyter/lab/settings/page_config.json \
  && rm -fr /usr/local/share/jupyter/lab/staging \
  && rm -fr /usr/local/share/.cache \
  && rm -fr /root/{.cache,.npm} \
  && rm -fr /tmp/*
 
-
-
-# install lab_data_ui
+# TODO: jupyterlab-server-proxy is not released yet
 RUN cd /tmp \
-  && REV=bc705587cf98f9bdbd8bc0c74f4d989c93f6e294 \
+  && git clone --depth 1 https://github.com/jupyterhub/jupyter-server-proxy \
+  && cd jupyter-server-proxy/jupyterlab-server-proxy \
+  && jlpm install \
+  && jlpm run build \
+  && jlpm pack \
+  && NODE_OPTIONS=--max-old-space-size=4096 jupyter labextension install --no-build jupyterlab-server-proxy-*.tgz \
+  && cd \
+  && rm -fr /usr/local/share/jupyter/lab/staging \
+  && rm -fr /usr/local/share/.cache \
+  && rm -fr /root/{.config,.cache,.npm} \
+  && rm -fr /tmp/*
+
+# install lab_data_ui, which also builds the final version of lab ui
+RUN cd /tmp \
+  && REV=e123d17cab8de66bd6f961182f11d03e58c21a20 \
   && curl -LO https://github.com/ausecocloud/lab_data_Ui/archive/${REV}.zip \
   && unzip ${REV}.zip \
   && cd lab_data_ui-${REV} \
@@ -171,10 +177,10 @@ USER $NB_USER
 
 # Install conda as jovyan and check the md5 sum provided on the download site
 # downgrade default python env to 3.5
-ENV MINICONDA_VERSION 4.5.12
+ENV MINICONDA_VERSION 4.7.10
 RUN cd /tmp \
  && curl -LO https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
- && echo "866ae9dff53ad0874e1d1a60b1ad1ef8 *Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh" | md5sum -c - \
+ && echo "1c945f2b3335c7b2b15130b1b2dc5cf4 *Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh" | md5sum -c - \
  && /bin/bash Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p ${CONDA_DIR} \
  && rm Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
  && ${CONDA_DIR}/bin/conda config --system --set auto_update_conda false \
