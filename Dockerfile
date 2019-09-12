@@ -185,13 +185,13 @@ RUN cd /tmp \
  && rm Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
  && ${CONDA_DIR}/bin/conda config --system --set auto_update_conda false \
  && ${CONDA_DIR}/bin/conda config --system --set show_channel_urls true \
+ && ${CONDA_DIR}/bin/conda config --system --set auto_activate_base false \
+ && ${CONDA_DIR}/bin/conda config --system --set channel_priority strict \
  && ${CONDA_DIR}/bin/conda update --yes conda \
  && ${CONDA_DIR}/bin/conda update --all --yes \
  && ${CONDA_DIR}/bin/conda clean -tipsy \
- && ${CONDA_DIR}/bin/conda config --set auto_activate_base false \
  && ${CONDA_DIR}/bin/conda init \
  && rm -fr /home/$NB_USER/{.cache,.conda,.npm}
-
 
 # add conda data to jupyter path, so that kernel specs for canda env can be managed
 # by user
