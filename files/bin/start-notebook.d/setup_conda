@@ -6,4 +6,3 @@ find /etc/skel -type f -execdir cp -v "{}" "${HOME}" ";"
 echo "export LANG=C.UTF-8" >> "${HOME}/.bashrc"
 # set up conda so that 'conda activate works'
 ${CONDA_DIR}/bin/conda init
-

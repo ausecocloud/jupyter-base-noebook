@@ -11,4 +11,16 @@ cat > "${SETTINGS_FILE}" <<EOF
 DISPLAY=''
 # customise default for conda R
 TAR='/bin/tar'
+# Set default locale
+LANG=C.UTF-8
+EOF
+
+SETTINGS_FILE="${SETTINGS_DIR}/.Rprofile"
+cat > "${SETTINGS_FILE}" <<EOF
+local({
+  r <- getOption("repos")
+  # r["CRAN"] <- "https://cran.csiro.au/"
+  r["CRAN"] <- "https://mirror.aarnet.edu.au/pub/CRAN/"
+  options(repos = r)
+})
 EOF
