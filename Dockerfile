@@ -34,6 +34,7 @@ RUN apt-get update \
     pandoc \
     python3 \
     python3-distutils \
+    python3-psutil \
     unzip \
     vim-tiny \
     wget \
@@ -80,6 +81,7 @@ RUN pip3 install --no-cache-dir \
       https://github.com/Anaconda-Platform/nb_conda_kernels/archive/2.2.2.zip \
       jupyter_conda==3.1.0 \
       https://github.com/ausecocloud/nb_data_ui/archive/ed1c83427faf52cc2c06dbc97897576bbded86a5.zip \
+      nbresuse==0.3.2 \
  && jupyter nbextension enable --py --sys-prefix widgetsnbextension \
  && jupyter nbextensions_configurator enable --sys-prefix \
  && jupyter contrib nbextension install --sys-prefix \
@@ -114,6 +116,9 @@ RUN pip3 install --no-cache-dir \
       jupyter-leaflet@^0.11.1 \
       jupyterlab_toastify@^2.3.2 \
       jupyterlab_conda@^1.1.0 \
+      jupyterlab-topbar-extension@^0.4.0 \
+      jupyterlab-system-monitor@^0.4.1 \
+      jupyter-matplotlib@^0.4.2 \
  && echo '{ "hub_prefix": "/hub" }' > /usr/local/share/jupyter/lab/settings/page_config.json \
  && rm -fr /usr/local/share/jupyter/lab/staging \
  && rm -fr /usr/local/share/.cache \
